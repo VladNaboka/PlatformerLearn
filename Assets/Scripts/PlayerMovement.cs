@@ -4,36 +4,53 @@ using UnityEngine;
 
 public class PlayerMovement : MonoBehaviour
 {
-    private Rigidbody2D player;
+    private Rigidbody2D rb;
+    private Animator anim;
+    private SpriteRenderer flip;
     [SerializeField] private float moveSpeed;
     [SerializeField] private float jumpForce;
 
-    private void Awake()
+    private void Start()
     {
-        player = GetComponent<Rigidbody2D>();
+        rb = GetComponent<Rigidbody2D>();
+        anim = GetComponent<Animator>();
+        flip = GetComponent<SpriteRenderer>();
     }
 
     private void Update()
     {
-                Vector2 inputVector = new Vector2(0, 0);
+        Move();
+    }
 
-                if (Input.GetKey(KeyCode.D))
-                {
-                    inputVector.x += 1;
-                }
-                if (Input.GetKey(KeyCode.A))
-                {
-                    inputVector.x -= 1;
-                }
-                if (Input.GetKeyDown(KeyCode.Space))
-                {
-                    player.AddForce(Vector3.up * jumpForce, ForceMode2D.Impulse);
-                    
-                 }
+    private void Move()
+    {
+        Vector2 inputVector = new Vector2(0, 0);
+        if (Input.GetKey(KeyCode.D))
+        {
+            inputVector.x += 1;
+            anim.SetBool("IsRunning", true);
+            flip.flipX = false;
+        }
+        else if (Input.GetKey(KeyCode.A))
+        {
+            inputVector.x -= 1;
+            anim.SetBool("IsRunning", true);
+            flip.flipX = true;
+        }
+        else
+        {
+            anim.SetBool("IsRunning", false);
+        }
 
-                inputVector = inputVector.normalized;
+        if (Input.GetKeyDown(KeyCode.Space))
+        {
+            rb.velocity = new Vector2(0, jumpForce);
+        }
 
-               transform.position += (Vector3)inputVector * Time.deltaTime * moveSpeed;
+        inputVector = inputVector.normalized;
 
+        Vector3 moveDir = new Vector3(inputVector.x * moveSpeed, 0f, 0f);
+
+        transform.position += moveDir * Time.deltaTime;
     }
 }
