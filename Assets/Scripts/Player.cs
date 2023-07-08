@@ -8,11 +8,15 @@ public class Player : MonoBehaviour
     private BoxCollider2D playerColl;
     private Animator anim;
     private SpriteRenderer flip;
+    [SerializeField] Transform groundCheck;
     [SerializeField] private float moveSpeed;
     [SerializeField] private float jumpForce;
     [SerializeField] private LayerMask groundJump;
+    [SerializeField] Transform wallCheck;
+    [SerializeField] private LayerMask wall;
 
-    private enum AnimationState{ idle, move, jump, fall}
+
+    private enum AnimationState{ idle, move, jump, fall, }
     AnimationState state;
 
     private void Start()
@@ -23,14 +27,20 @@ public class Player : MonoBehaviour
         flip = GetComponent<SpriteRenderer>();
     }
 
-    private void Update()
+    private void FixedUpdate()
     {
         Move();
+    
+    }
+
+    private void Update()
+    {
         Jump();
     }
 
     private void Move()
     {
+
         Vector2 inputVector = new Vector2(0, 0);
         if (Input.GetKey(KeyCode.D))
         {
@@ -55,6 +65,16 @@ public class Player : MonoBehaviour
         Vector3 moveDir = new Vector3(inputVector.x * moveSpeed, 0f, 0f);
 
         transform.position += moveDir * Time.deltaTime;
+
+        if (IsWall())
+        {
+            state = AnimationState.idle;
+        }
+        if (IsWall() && !IsGrounded())
+        {
+            state = AnimationState.fall;
+        }
+
     }
 
     private void Jump()
@@ -76,6 +96,12 @@ public class Player : MonoBehaviour
 
     private bool IsGrounded()
     {
-        return Physics2D.BoxCast(playerColl.bounds.center, playerColl.bounds.size, 0f, Vector2.down, .1f, groundJump);
+        return Physics2D.OverlapCapsule(groundCheck.position, new Vector2(0.73f, 0.23f), CapsuleDirection2D.Horizontal, 0 , groundJump);
+        
+    }
+
+    private bool IsWall()
+    {
+        return Physics2D.OverlapCapsule(wallCheck.position, new Vector2(1.7f, 0.2f), CapsuleDirection2D.Horizontal, 0, wall);
     }
 }
