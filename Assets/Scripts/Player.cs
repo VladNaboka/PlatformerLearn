@@ -82,6 +82,7 @@ public class Player : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.Space) && IsGrounded())
         {
             rb.velocity = new Vector2(0, jumpForce);
+            AudioManager.instance.PlaySFX("Jump");
         }
         if(rb.velocity.y > .1f)
         {
